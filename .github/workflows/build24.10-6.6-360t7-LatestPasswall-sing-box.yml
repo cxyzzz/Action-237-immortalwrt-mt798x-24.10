@@ -71,6 +71,8 @@ jobs:
          ./scripts/feeds update -a
          rm -rf feeds/packages/lang/golang
          git clone https://github.com/kenzok8/golang -b 1.25 feeds/packages/lang/golang
+         # tailscale 1.104.x 的 go.mod 要求 go >= 1.27.3，放开工具链自动切换，让 go 自动下载 go1.27.3
+         sed -i 's/^[[:space:]]*GOTOOLCHAIN=local/GOTOOLCHAIN=auto/' feeds/packages/lang/golang/golang-package.mk
 
 
     - name: Install feeds
@@ -129,9 +131,11 @@ jobs:
 
     - name: Organize files
       id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
+      if: steps.compile.outcome == 'success' && env.UPLOAD_FIRMWARE == 'true' && !cancelled()
       run: |
         cd openwrt/bin/targets/*/*
+        # 编译没产出固件就直接失败，避免把半成品 bin 目录发成 release
+        ls *-sysupgrade.bin >/dev/null 2>&1 || { echo "::error::no sysupgrade image produced"; exit 1; }
         rm -rf packages
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
@@ -145,7 +149,7 @@ jobs:
 
     - name: Generate release tag
       id: tag
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
+      if: steps.compile.outcome == 'success' && env.UPLOAD_RELEASE == 'true' && !cancelled()
       run: |
         echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
         touch "${RELEASE_FILE}"
