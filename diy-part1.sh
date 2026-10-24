@@ -17,3 +17,10 @@
 # echo 'src-git helloworld https://github.com/fw876/helloworld' >>feeds.conf.default
 # echo 'src-git passwall https://github.com/xiaorouji/openwrt-passwall' >>feeds.conf.default
 # echo 'src-git passwall_packages https://github.com/xiaorouji/openwrt-passwall-packages' >>feeds.conf.default
+
+# Add third-party packages (非 feed 结构，直接 clone 到 package/)
+rm -rf package/luci-app-tailscale-community package/openwrt-tailscale
+git clone --depth 1 https://github.com/Tokisaki-Galaxy/luci-app-tailscale-community.git \
+  package/luci-app-tailscale-community
+git clone --depth 1 https://github.com/GuNanOvO/openwrt-tailscale.git \
+  package/openwrt-tailscale
