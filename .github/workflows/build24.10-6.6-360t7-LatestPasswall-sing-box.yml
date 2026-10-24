@@ -70,9 +70,7 @@ jobs:
          cd openwrt
          ./scripts/feeds update -a
          rm -rf feeds/packages/lang/golang
-         git clone https://github.com/kenzok8/golang -b 1.25 feeds/packages/lang/golang
-         # tailscale 1.104.x 的 go.mod 要求 go >= 1.27.3，放开工具链自动切换，让 go 自动下载 go1.27.3
-         sed -i 's/^[[:space:]]*GOTOOLCHAIN=local/GOTOOLCHAIN=auto/' feeds/packages/lang/golang/golang-package.mk
+         git clone https://github.com/cxyzzz/golang -b 1.27 feeds/packages/lang/golang
 
 
     - name: Install feeds
